@@ -1,15 +1,15 @@
-import asyncio
+import os
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine
 from google.cloud.sqlalchemy_spanner.sqlalchemy_spanner_asyncio import (
     SpannerDialect_asyncio,
 )
 from sqlalchemy.testing.plugin.plugin_base import fixtures
-from unittest.mock import MagicMock, AsyncMock
 
 class AsyncioTest(fixtures.TestBase):
     @pytest.mark.asyncio
     async def test_async_engine_creation(self):
+        assert os.environ.get("SPANNER_EMULATOR_HOST") is not None
         engine = create_async_engine("spanner+spanner_asyncio:///projects/p/instances/i/databases/d")
         assert engine.dialect.is_async
         assert isinstance(engine.dialect, SpannerDialect_asyncio)
@@ -18,6 +18,7 @@ class AsyncioTest(fixtures.TestBase):
     async def test_async_connection(self, mocker):
         from sqlalchemy import text
         from sqlalchemy.pool import NullPool
+        assert os.environ.get("SPANNER_EMULATOR_HOST") is not None
         engine = create_async_engine(
             "spanner+spanner_asyncio:///projects/p/instances/i/databases/d",
             poolclass=NullPool
